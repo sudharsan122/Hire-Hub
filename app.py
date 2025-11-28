@@ -16,7 +16,7 @@ from datetime import datetime
 import streamlit as st
 
 # ------------------ HARD-CODED GEMINI KEY (replace locally) ------------------
-GEMINI_API_KEY = "AIzaSyA-TdOVeGgIIks3Ffjup3F_UVMzOARJT2Q"  # <-- Replace with your key locally
+GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
 
 # ------------------ genai client ------------------
 try:
