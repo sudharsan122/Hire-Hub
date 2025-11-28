@@ -1,0 +1,13 @@
+streamlit
+pandas
+numpy
+python-docx
+pymupdf
+regex
+dateparser
+python-dateutil
+requests
+protobuf==3.20.3
+google-generativeai
+pytz
+python-dotenv
