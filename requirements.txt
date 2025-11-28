@@ -13,3 +13,4 @@ google-generativeai
 google-genai
 pytz
 python-dotenv
+openpyxl
