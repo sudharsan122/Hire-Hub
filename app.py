@@ -886,7 +886,7 @@ def compute_score_from_sets(
         reason = "OK" if status == "selected" else ("Experience gap" if resume_exp < jd_min_exp else "Low score")
     else:
         cov = len(matched_all) / max(1, len(jd_all_skills))
-        score = round(70 * cov + 30 * ratio)
+        score = round(50 * cov + 50 * ratio)
         status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 40 else "rejected"
         reason = "OK" if status == "selected" else ("Experience gap" if resume_exp < jd_min_exp else "Low score")
 
