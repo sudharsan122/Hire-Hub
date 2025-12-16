@@ -882,12 +882,12 @@ def compute_score_from_sets(
         mand_cov = len(matched_mandatory) / max(1, len(jd_mandatory))
         opt_cov = len(matched_optional) / max(1, len(jd_optional))
         score = round(50 * mand_cov + 30 * opt_cov + 20 * ratio)
-        status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 50 else "rejected"
+        status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 40 else "rejected"
         reason = "OK" if status == "selected" else ("Experience gap" if resume_exp < jd_min_exp else "Low score")
     else:
         cov = len(matched_all) / max(1, len(jd_all_skills))
         score = round(70 * cov + 30 * ratio)
-        status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 50 else "rejected"
+        status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 40 else "rejected"
         reason = "OK" if status == "selected" else ("Experience gap" if resume_exp < jd_min_exp else "Low score")
 
     if resume_exp == 0.0:
