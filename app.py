@@ -848,6 +848,7 @@ def extract_experience_from_resume(text, filename="", aggressive_edu=True):
 # ----------------------------------------------------------------------------------------------------------------------
 # MANDATORY-FIRST SCORING helper that accepts resume_skillset and resume_exp directly
 # ----------------------------------------------------------------------------------------------------------------------
+
 def compute_score_from_sets(
     resume_skillset: set,
     resume_exp: float,
@@ -862,10 +863,17 @@ def compute_score_from_sets(
     matched_all = sorted(list(jd_all_skills & resume_skillset))
 
     ratio = min(resume_exp / jd_min_exp, 1.0) if jd_min_exp > 0 else 1.0
+    exp_met = resume_exp >= jd_min_exp if jd_min_exp > 0 else True
 
     if jd_mandatory:
+        # Existing mandatory-skills flow (unchanged)
         if len(missing_mandatory) > 0:
             score = int(20 * ratio)
+            status = "rejected"
+            reason = "Mandatory skills missing"
+            if resume_exp == 0.0:
+                status = "needs review"
+                reason = "Experience not found (parser)"
             return {
                 "score": score,
                 "matched_mandatory": matched_mandatory,
@@ -873,23 +881,34 @@ def compute_score_from_sets(
                 "matched_optional": matched_optional,
                 "matched_all": matched_all,
                 "exp_years": round(resume_exp, 1),
-                "exp_met": resume_exp >= jd_min_exp if jd_min_exp > 0 else True,
-                "status": "rejected",
-                "reason": "Mandatory skills missing",
+                "exp_met": exp_met,
+                "status": status,
+                "reason": reason,
                 "resume_skillset": sorted(list(resume_skillset)),
             }
 
         mand_cov = len(matched_mandatory) / max(1, len(jd_mandatory))
         opt_cov = len(matched_optional) / max(1, len(jd_optional))
         score = round(50 * mand_cov + 30 * opt_cov + 20 * ratio)
-        status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 40 else "rejected"
-        reason = "OK" if status == "selected" else ("Experience gap" if resume_exp < jd_min_exp else "Low score")
+
+        status = "selected" if exp_met and score >= 40 else "rejected"
+        reason = "OK" if status == "selected" else ("Experience gap" if not exp_met else "Low score")
+
     else:
+        # No mandatory skills in JD:
+        # New rule: If experience is met and overall skill coverage >= 50%, select.
         cov = len(matched_all) / max(1, len(jd_all_skills))
         score = round(50 * cov + 50 * ratio)
-        status = "selected" if (resume_exp >= jd_min_exp if jd_min_exp > 0 else True) and score >= 40 else "rejected"
-        reason = "OK" if status == "selected" else ("Experience gap" if resume_exp < jd_min_exp else "Low score")
 
+        if exp_met and cov >= 0.5:
+            status = "selected"
+            reason = "OK"
+        else:
+            # Fall back to previous score logic
+            status = "selected" if exp_met and score >= 40 else "rejected"
+            reason = "OK" if status == "selected" else ("Experience gap" if not exp_met else "Low score")
+
+    # Preserve special handling for parser-missed experience
     if resume_exp == 0.0:
         status = "needs review"
         reason = "Experience not found (parser)"
@@ -901,7 +920,7 @@ def compute_score_from_sets(
         "matched_optional": matched_optional,
         "matched_all": matched_all,
         "exp_years": round(resume_exp, 1),
-        "exp_met": resume_exp >= jd_min_exp if jd_min_exp > 0 else True,
+        "exp_met": exp_met,
         "status": status,
         "reason": reason,
         "resume_skillset": sorted(list(resume_skillset)),
